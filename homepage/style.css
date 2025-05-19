@@ -1,0 +1,89 @@
+body{
+    display: grid;
+    grid-template-columns: 220px 1fr; /* column 1 = sidebar, column 2+ = main */
+    grid-template-rows: auto 1fr;         /* grow as needed */
+    height: 100vh; 
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    color: white;
+    background-color: #181818;
+}
+ul{
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+    margin: 0%;
+    padding: 0%;
+  
+}
+a{
+    text-decoration: none;
+    color: white;
+    transition: color 0.3s;
+}
+.options{
+    grid-row: 1 / span 2;   /* from row 1 to the end of rows (bottom of grid) */
+    grid-column: 1;     /* first column */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    background-color: #121212; /* Dark background */;
+    gap: 30px;
+    position: relative;
+    align-items: start;
+
+    
+}
+.first-line{
+    grid-row: 1;        /* stay on first row */
+    grid-column: 2 / -1; /* from column 2 to the end of columns */
+    background-color: #262626;
+    padding: 1rem;
+    display:flex;
+    align-items: center;
+    justify-content: space-between;
+    
+}
+i{
+    color: #1db954; /* Spotify green */
+    font-size: 20px;
+    font-weight: bold;
+}
+#header1{
+    font-size: 1.8rem;
+    align-self: center;
+    font-family:Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif
+}
+li a:hover {
+  color: #1db954;
+}
+.search-box{
+    display: flex;
+    align-items: center;
+    padding: 3px;
+    border-radius: 5px;
+    width: 50%;
+    position: relative;
+}
+.search-box input{
+    width: 100%;
+    padding: 10px 10px 10px 40px; /* left padding for the icon */
+    border: none;
+    border-radius: 20px;
+    background-color: #333;
+    color: white;
+    font-size: 14px;
+}
+.search-box i {
+    position: absolute;
+    left: 20px;
+    color: #1db954; /* Spotify green */
+    font-size: 20px;
+}
+.user-box{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
