@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from reco_music.api import router 
+from api.routes import router 
 
 app=FastAPI()
 app.include_router(router)

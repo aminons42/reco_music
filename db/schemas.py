@@ -1,11 +1,13 @@
 from pydantic import BaseModel
 from typing import Optional,List 
 
-class User(BaseModel):
-    id: int
+class UserLogin(BaseModel):
+    password: str
     username: Optional[str]
-     class Config:
+    class Config:
         orm_mode = True
+class UserBase(UserLogin):
+    id: int        
 class SongBase(BaseModel):
     title: str
     artist: Optional[str]
