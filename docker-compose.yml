@@ -2,19 +2,29 @@ version: '3.8'
 
 services:
 
+  # MySQL pour stocker les interactions utilisateur
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: musicdb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # Debezium pour capter les changements dans MySQL
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
-    container_name: zookeeper
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
     ports:
       - "2181:2181"
-    networks:
-      - kafka-network
 
   kafka:
     image: confluentinc/cp-kafka:7.4.0
-    container_name: kafka
     depends_on:
       - zookeeper
     ports:
@@ -24,58 +34,67 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    networks:
-      - kafka-network
 
-  debezium:
-    image: debezium/connect:2.4
-    container_name: debezium
+  connect:
+    image: debezium/connect:2.5
     depends_on:
       - kafka
+      - mysql
     ports:
       - "8083:8083"
     environment:
       BOOTSTRAP_SERVERS: kafka:9092
       GROUP_ID: 1
-      CONFIG_STORAGE_TOPIC: debezium_connect_configs
-      OFFSET_STORAGE_TOPIC: debezium_connect_offsets
-      STATUS_STORAGE_TOPIC: debezium_connect_statuses
+      CONFIG_STORAGE_TOPIC: debezium_config
+      OFFSET_STORAGE_TOPIC: debezium_offset
+      STATUS_STORAGE_TOPIC: debezium_status
       KEY_CONVERTER_SCHEMAS_ENABLE: "false"
       VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
-      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-    networks:
-      - kafka-network
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect
+      CONNECT_PLUGIN_PATH: /kafka/connect
+    volumes:
+      - ./debezium-plugins:/kafka/connect
 
+  # Redis pour Celery
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  # Elasticsearch pour l'indexation des utilisateurs et recommandations
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.4
-    container_name: elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.1
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
       - "9200:9200"
-    networks:
-      - kafka-network
-    volumes:
-      - esdata:/usr/share/elasticsearch/data
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.13.4
-    container_name: kibana
+  # API FastAPI (ton backend)
+  fastapi:
+    build: ./backend
+    container_name: fastapi
     ports:
-      - "5601:5601"
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - "8000:8000"
     depends_on:
+      - mysql
+      - kafka
+      - redis
       - elasticsearch
-    networks:
-      - kafka-network
+
+  # Worker Celery
+  celery_worker:
+    build: ./backend
+    container_name: celery_worker
+    command: celery -A app.worker worker --loglevel=info
+    depends_on:
+      - redis
+      - kafka
+      - mysql
+    volumes:
+      - ./backend:/app
 
 volumes:
-  esdata:
-
-networks:
-  kafka-network:
-    driver: bridge
+  mysql_data:
