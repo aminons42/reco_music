@@ -4,7 +4,12 @@ celery==5.3.1
 redis==4.5.5
 sqlalchemy==2.0.19
 mysql-connector-python==8.1.0
-aiokafka==0.8.0
 elasticsearch==8.9.0
 pydantic==1.10.12
 python-dotenv==1.0.0
+passlib
+pymysql
+kafka-python
+scikit-learn
+pandas
+numpy

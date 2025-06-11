@@ -1,29 +1,24 @@
 from kafka import KafkaConsumer
 import json
-from celery_app.tasks.recommendations import generate_user_recommendations_task
+from backend.tasks.recommendations import compute_recommendations
 
-KAFKA_TOPIC = "dbserver1.music_db.user_song_interactions"
-KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
+# Configure le consumer Kafka
+consumer = KafkaConsumer(
+    'musicdb.interactions',  # nom du topic créé par Debezium
+    bootstrap_servers=['kafka:9092'],  # nom du service kafka dans docker-compose
+    value_deserializer=lambda m: json.loads(m.decode('utf-8')),
+    auto_offset_reset='earliest',
+    enable_auto_commit=True,
+    group_id='reco-group'
+)
 
-def start_consumer():
-    consumer = KafkaConsumer(
-        KAFKA_TOPIC,
-        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-        auto_offset_reset="earliest",
-        enable_auto_commit=True,
-        group_id="recommendation-group",
-        value_deserializer=lambda x: json.loads(x.decode("utf-8")),
-    )
+print("Kafka consumer started, waiting for messages...")
 
-    print(f"Listening to Kafka topic: {KAFKA_TOPIC}")
-    for message in consumer:
-        try:
-            payload = message.value
-            after = payload.get("payload", {}).get("after")
-
-            if after:
-                user_id = after.get("user_id")
-                print(f"[Kafka] Triggering recommendation task for user_id={user_id}")
-                generate_user_recommendations_task.delay(user_id)
-        except Exception as e:
-            print(f"[Kafka] Error processing message: {e}")
+for message in consumer:
+    data = message.value
+    print(f"Received interaction: {data}")
+    user_id = data.get('user_id')
+    if user_id:
+        # Déclenche la tâche Celery pour recalculer les recommandations
+        compute_recommendations.delay(user_id)
+        print(f"Triggered recommendation task for user {user_id}")

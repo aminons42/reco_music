@@ -1,6 +1,6 @@
 from sqlalchemy import String, Integer, Column, ForeignKey,DateTime,Boolean
 from sqlalchemy.orm import relationship
-from db.database import Base
+from .database import Base
 
 
 class User(Base):
@@ -24,13 +24,12 @@ class Song(Base):
 class Interaction(Base):
     __tablename__="interactions"
     id=Column(Integer,primary_key=True,index=True)
-    user_id=Column(Integer,ForeignKey("users.id"))
-    song_id=Column(Integer,ForeignKey("songs.id"))
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    song_id = Column(Integer, ForeignKey("songs.id"), index=True)
     liked=Column(Boolean)
     interaction_time=Column(DateTime)
     user=relationship("User",back_populates="interactions")
     song=relationship("Song",back_populates="interactions")
 
-    
-    
-    
+
+

@@ -13,6 +13,8 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    command:
+      --server-id=223344 --log-bin=mysql-bin --binlog-format=ROW --binlog-row-image=FULL  
 
   # Debezium pour capter les changements dans MySQL
   zookeeper:
@@ -88,7 +90,7 @@ services:
   celery_worker:
     build: ./backend
     container_name: celery_worker
-    command: celery -A app.worker worker --loglevel=info
+    command: celery -A celery_worker.celery_app worker --loglevel=info
     depends_on:
       - redis
       - kafka

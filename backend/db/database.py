@@ -1,8 +1,9 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker,declarative_base
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 
-DB_URL ="mysql+pymysql://root:admin123@localhost:3306/reco_music"
+DB_URL ="mysql+pymysql://root:root@mysql:3306/musicdb"
 engine=create_engine(DB_URL)
 Session=sessionmaker(bind=engine)
 Base=declarative_base()

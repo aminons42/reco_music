@@ -86,4 +86,10 @@ li a:hover {
     align-items: center;
     gap: 10px;
 }
+#songs {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
 

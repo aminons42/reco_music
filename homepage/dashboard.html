@@ -6,6 +6,7 @@
     <title>Dashboard</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="script.js" defer></script>
 </head>
 <body>
     <div class="options">
@@ -23,16 +24,24 @@
     <div class="first-line">
         <div class="search-box">
            <i class="fas fa-search"></i>
-           <input type="text" placeholder="Search for artists, songs, or albums" >
+           <input type="text" id="searchInput" placeholder="Search for artists, songs, or albums" >
         </div>
         <div class="user-box">
-           <h3>Amine Sabil</h3>
+           <h3></h3>
            <i class="fas fa-user" id="user"></i>
         </div>
     </div>
-    <div>
+    <div class="content">
+    <h2>Recommandations</h2>
+    <ul id="recommendations"></ul>
 
+    <h2>Historique d'interactions</h2>
+    <ul id="history"></ul>
+
+    <h2>Toutes les chansons</h2>
+    <ul id="songs"></ul>
     </div>
+
 
     
 </body>
